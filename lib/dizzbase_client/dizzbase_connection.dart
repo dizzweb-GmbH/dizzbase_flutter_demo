@@ -16,6 +16,7 @@ class DizzbaseRequest
 
 class DizzbaseConnection
 {
+  void Function (bool connected)? connectionStatusCallback;
   final String url = "http://localhost:3000";
   late String connectionuuid;
   late io.Socket _socket;
@@ -23,8 +24,10 @@ class DizzbaseConnection
   Map<String, DizzbaseTransaction> transactions = {};
   bool hasBeenDisconnected = false;
   DizzbaseQuery? lastQuery;
+  
 
-  DizzbaseConnection ()
+  /// Add a connectionStatusCallback to get notified when the backend is not online or comes back online again.
+  DizzbaseConnection ({this.connectionStatusCallback})
   {
     connectionuuid = const Uuid().v4();
     _socket = io.io(url);
@@ -39,6 +42,10 @@ class DizzbaseConnection
         _socket.emit ('init', connectionuuid);
         hasBeenDisconnected = false;
         if (lastQuery != null) {_sendToServer(lastQuery!);}
+      }
+      if (connectionStatusCallback != null)
+      {
+        connectionStatusCallback! (true);
       }
     });
 
@@ -70,6 +77,10 @@ class DizzbaseConnection
     _socket.onDisconnect((_) {
       hasBeenDisconnected = true;
       print('disconnect');
+      if (connectionStatusCallback != null)
+      {
+        connectionStatusCallback! (false);
+      }
     });
   }
 
