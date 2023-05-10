@@ -132,6 +132,7 @@ class _DemoUpdateEmployeeState extends State<DemoUpdateEmployee> {
 
 
 /**************** INSERT INTO A TABLE  ****************/
+// Note that the inserted order is automatically added to all queries that join to the same employees/customers as the new order!
 class DemoInsertOrder extends StatefulWidget {
   const DemoInsertOrder({super.key});
 
@@ -153,7 +154,7 @@ class _DemoInsertOrderState extends State<DemoInsertOrder> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 5, 0, 10),
       child: Row (mainAxisAlignment: MainAxisAlignment.start, children: [
-        const Text ("Insert Order (name, revenue) for Employee #2 and Customer #1:   ", style: TextStyle(color: Colors.blue, fontSize: 15, fontWeight: FontWeight.bold),),
+        const Text ("Insert Order (name, revenue) for Employee #2 and Customer #1 (note that the order is added to the tables above):   ", style: TextStyle(color: Colors.blue, fontSize: 15, fontWeight: FontWeight.bold),),
         SizedBox(width: 150, child: TextField(controller: _controllerName,)),
         SizedBox(width: 20,),
         SizedBox(width: 150, child: TextField(controller: _controllerRevenue,)),

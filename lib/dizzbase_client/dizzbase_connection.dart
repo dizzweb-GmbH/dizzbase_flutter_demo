@@ -21,6 +21,8 @@ class DizzbaseConnection
   late io.Socket _socket;
   StreamController<List<Map<String,dynamic>>>? _controller;
   Map<String, DizzbaseTransaction> transactions = {};
+  bool hasBeenDisconnected = false;
+  DizzbaseQuery? lastQuery;
 
   DizzbaseConnection ()
   {
@@ -32,6 +34,12 @@ class DizzbaseConnection
       // Moved the init event directly after the io.io(url) call as the .onConnect event wasn't triggered reliably 
       //_socket.emit ('init', connectionuuid);
       print('Connected to server.');
+      if (hasBeenDisconnected)
+      {
+        _socket.emit ('init', connectionuuid);
+        hasBeenDisconnected = false;
+        if (lastQuery != null) {_sendToServer(lastQuery!);}
+      }
     });
 
     // Send from server on query transactions (eg SELECT)
@@ -59,7 +67,10 @@ class DizzbaseConnection
       }
     }); 
 
-    _socket.onDisconnect((_) => print('disconnect'));
+    _socket.onDisconnect((_) {
+      hasBeenDisconnected = true;
+      print('disconnect');
+    });
   }
 
   void dispose ()
@@ -86,6 +97,7 @@ class DizzbaseConnection
 
   Stream<List<Map<String,dynamic>>> streamFromQuery (DizzbaseQuery q)
   {
+    lastQuery = q;
     _controller ??= StreamController<List<Map<String,dynamic>>>();
     _sendToServer(q);
     return _controller!.stream;
