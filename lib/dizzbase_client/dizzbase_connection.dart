@@ -52,11 +52,10 @@ class DizzbaseConnection
 
     // Send from server on non-query transactions (eg INSERT/DELETE/UPDATE)
     _socket.on('status', (data) {
-      if (data['uuid'] == connectionuuid)
+      if (data["status"]['uuid'] == connectionuuid)
       {
-        print ("STATUS: $data");
-        var insertedKeys = convertList (data['rows']);
-        transactions[data['transactionuuid']]!.completer!.complete(insertedKeys[0]);
+        transactions[data["status"]['transactionuuid']]!.completer!.complete(data);
+        transactions[data["status"]['transactionuuid']]!.reset();
       }
     }); 
 
@@ -85,14 +84,52 @@ class DizzbaseConnection
     _socket.emit('dbrequest', augmentedRequest);
   }
 
-  Stream<List<Map<String,dynamic>>> sendQuery (DizzbaseQuery q)
+  Stream<List<Map<String,dynamic>>> streamFromQuery (DizzbaseQuery q)
   {
     _controller ??= StreamController<List<Map<String,dynamic>>>();
     _sendToServer(q);
     return _controller!.stream;
   }
 
-  Future<Map<String, dynamic>> transaction (DizzbaseTransaction req)
+  /// Inserts data into the database and returns the primary key of the inserted row.
+  Future<int> insertTransaction (DizzbaseInsert req) async
+  {
+    var result = await _transaction (req);
+    if (result["status"]["error"] != "") {throw Exception(result["status"]["error"]);}
+    return result['data'][0]["pkey"];
+  }
+
+  /// Inserts data into the database and returns the primary key of the inserted row.
+  Future<Map<String, dynamic>> updateTransaction (DizzbaseUpdate req) async
+  {
+    var result = await _transaction (req);
+    return result["status"];
+  }
+
+  /// Inserts data into the database and returns the primary key of the inserted row.
+  Future<Map<String, dynamic>> deleteTransaction (DizzbaseDelete req) async
+  {
+    var result = await _transaction (req);
+    return result["status"];
+  }
+
+  /// Inserts data into the database and returns the primary key of the inserted row.
+  Future<DizzbaseDirectSQLResult> directSQLTransaction (String sql) async
+  {
+    var result = await _transaction (DizzbaseDirectSQL(sql));
+    var res = DizzbaseDirectSQLResult();
+    res.status = result["status"];
+    res.error = result["status"]["error"];
+    if (result["status"]["error"] == "")
+    {
+      res.data = convertList (result["data"]);
+    }
+    return res;
+  }
+
+  /// The Future that is return by this function contains a map with the primary key of the new row.
+  /// The primary key can be retrieved using the "pkey" key or by using it's proper column name, eg xxx_id
+  Future<Map<String, dynamic>> _transaction (DizzbaseTransaction req)
   {
     if (req.isRunning())
     {

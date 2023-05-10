@@ -12,10 +12,13 @@ class DizzbaseDemoWidget extends StatefulWidget {
 
 class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
   late DizzbaseConnection dizzbaseConnectionForManualWidget;
+  late DizzbaseConnection dizzbaseConnectionForDirectSQL;
+  int employeeCount = -1;
 
   @override
   void initState() {
     dizzbaseConnectionForManualWidget = DizzbaseConnection();
+    dizzbaseConnectionForDirectSQL = DizzbaseConnection();
     super.initState();
   }
 
@@ -23,6 +26,7 @@ class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
   void dispose() {
     // IMPORTANT!
     dizzbaseConnectionForManualWidget.dispose();
+    dizzbaseConnectionForDirectSQL.dispose();
     super.dispose();
   }
 
@@ -77,7 +81,7 @@ class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
           Text ("Directly using the data from the stream to compose widgets", style: const TextStyle(color: Colors.blue, fontSize: 15, fontWeight: FontWeight.bold),),
           const SizedBox (height: 10,),
           StreamBuilder<List<Map<String, dynamic>>>(
-          stream: dizzbaseConnectionForManualWidget.sendQuery(DizzbaseQuery(table: MainTable("employee", pkey: 3))),
+          stream: dizzbaseConnectionForManualWidget.streamFromQuery(DizzbaseQuery(table: MainTable("employee", pkey: 3))),
           builder: ((context, snapshot) {
             if (snapshot.hasData)
             {
@@ -86,7 +90,8 @@ class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
             return Text ("Waiting for inforation on employee number 3...");
           })),
           const SizedBox (height: 5,),
-      
+
+
           // Other important things to take care of:
           Row(mainAxisAlignment: MainAxisAlignment.start, children: [Text("Important: ", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),), 
             Text ("Please note the initState() and dispose() overrides in stateful widgets when using DizzbaseConnection. Remember to call DizzbaseConnection.dispose() to free up server ressources!")],
@@ -97,6 +102,25 @@ class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
           DemoUpdateEmployee(),
           DemoInsertOrder(),
           DemoDeleteOrder(),
+
+
+          const SizedBox (height: 10,),
+          Row(
+            children: [
+              Text ("Send a SQL statement directly to the server without a stream. This does not real-time update.   ", style: const TextStyle(color: Colors.blue, fontSize: 15, fontWeight: FontWeight.bold),),
+              ElevatedButton(onPressed: () {
+                dizzbaseConnectionForDirectSQL.directSQLTransaction("SELECT count(*) AS c from employee").then ((result){
+                  if (result.error!="") {throw Exception(result.error.toString());}
+                  // We get only one row (result[0]) and the column has been named "c":
+                  setState(() => employeeCount = int.parse(result.data[0]["c"]));
+                });
+              }, child: Text ("Send SQL: SELECT count(*) from employees")), SizedBox(width: 10,),
+              (employeeCount==-1)?Container():Text ("Result of 'SELECT count(*) from employees: "), 
+              (employeeCount==-1)?Container():Text (employeeCount.toString(), style: TextStyle (color: Colors.green),),
+            ],
+          ),
+          const SizedBox (height: 5,),
+
     
         ],
       ),

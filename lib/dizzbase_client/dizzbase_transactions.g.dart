@@ -66,3 +66,14 @@ Map<String, dynamic> _$DizzbaseDeleteToJson(DizzbaseDelete instance) =>
       'table': instance.table,
       'filters': instance.filters.map((e) => e.toJson()).toList(),
     };
+
+DizzbaseDirectSQL _$DizzbaseDirectSQLFromJson(Map<String, dynamic> json) =>
+    DizzbaseDirectSQL(
+      json['sql'] as String,
+    )..transactionuuid = json['transactionuuid'] as String;
+
+Map<String, dynamic> _$DizzbaseDirectSQLToJson(DizzbaseDirectSQL instance) =>
+    <String, dynamic>{
+      'transactionuuid': instance.transactionuuid,
+      'sql': instance.sql,
+    };

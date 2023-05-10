@@ -85,3 +85,23 @@ class DizzbaseDelete extends DizzbaseTransaction
   @override
   Map<String, dynamic> toJson() => _$DizzbaseDeleteToJson(this);
 }
+
+class DizzbaseDirectSQLResult 
+{
+  /// This structure hold status information
+  Map<String, dynamic> status = {};
+  /// This is the structure that holds the retrieved data
+  List<Map<String, dynamic>> data = [];
+  String error = "";
+}
+
+@JsonSerializable(explicitToJson: true)
+class DizzbaseDirectSQL extends DizzbaseTransaction
+{
+  DizzbaseDirectSQL (this.sql);
+  final String sql;
+
+  factory DizzbaseDirectSQL.fromJson(Map<String, dynamic> json) => _$DizzbaseDirectSQLFromJson(json);
+  @override
+  Map<String, dynamic> toJson() => _$DizzbaseDirectSQLToJson(this);
+}

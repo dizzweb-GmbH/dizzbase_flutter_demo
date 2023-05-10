@@ -41,7 +41,7 @@ class _DemoTableState extends State<DemoTable> {
         Text (widget.title, style: const TextStyle(color: Colors.blue, fontSize: 15, fontWeight: FontWeight.bold),),
         const SizedBox (height: 10,),
         StreamBuilder<List<Map<String, dynamic>>>(
-          stream: dizzbaseClient.sendQuery(widget.query),
+          stream: dizzbaseClient.streamFromQuery(widget.query),
           builder: ((context, snapshot) {
             if (snapshot.hasData)
             {
@@ -97,6 +97,7 @@ class DemoUpdateEmployee extends StatefulWidget {
 class _DemoUpdateEmployeeState extends State<DemoUpdateEmployee> {
   final TextEditingController _controllerName = TextEditingController(text: "NewName");
   final TextEditingController _controllerEmail = TextEditingController(text: "newEmail@mail.com");
+  int rowsAffected = -1;
 
   @override
   void initState() {
@@ -114,10 +115,16 @@ class _DemoUpdateEmployeeState extends State<DemoUpdateEmployee> {
         SizedBox(width: 150, child: TextField(controller: _controllerEmail,)),
         SizedBox(width: 20,),
         ElevatedButton(child: Text("UPDATE"), onPressed: (){
-            DizzbaseConnection().transaction(
-              DizzbaseUpdate(table: "employee", fields: ["employee_name", "employee_email"], values: [_controllerName.text, _controllerEmail.text], filters: [Filter('employee', 'employee_id', 2)])
-          );
+            DizzbaseConnection().updateTransaction(
+              DizzbaseUpdate(table: "employee", fields: ["employee_name", "employee_email"], 
+                values: [_controllerName.text, _controllerEmail.text], filters: [Filter('employee', 'employee_id', 2)]))
+              // ERROR HANDLING and show how many rows were updated:
+              .then((result) {
+                if (result["error"]!= "") { throw Exception(result["error"]); }
+                setState(() => rowsAffected = result["rowCount"]);
+              });
         }),
+        (rowsAffected != -1)?Text("  Rows updated: $rowsAffected.", style: TextStyle (color: Colors.green),):Container()
       ],),
     );
   }
@@ -134,6 +141,7 @@ class DemoInsertOrder extends StatefulWidget {
 class _DemoInsertOrderState extends State<DemoInsertOrder> {
   final TextEditingController _controllerName = TextEditingController(text: "NewOrderName");
   final TextEditingController _controllerRevenue = TextEditingController(text: "200.00");
+  int insertedRowPrimaryKey = 0;
 
   @override
   void initState() {
@@ -151,11 +159,14 @@ class _DemoInsertOrderState extends State<DemoInsertOrder> {
         SizedBox(width: 150, child: TextField(controller: _controllerRevenue,)),
         SizedBox(width: 20,),
         ElevatedButton(child: Text("INSERT"), onPressed: (){
-            DizzbaseConnection().transaction(
+            DizzbaseConnection().insertTransaction(
               DizzbaseInsert(table: "order", fields: ["order_name", "customer_id", "sales_rep_id", "services_rep_id", "order_revenue"], 
-                values: [_controllerName.text, 1, 2, 2, _controllerRevenue.text])
-          );
+                values: [_controllerName.text, 1, 2, 2, _controllerRevenue.text]))
+          // RETRIEVING THE PRIMARY KEY: This is executed after we get back the result of the transaction. 
+          // Instead of "pkey" you can also access the key by using it's column name: data["order_id"] in this case.
+          .then((data) => setState(() => insertedRowPrimaryKey = data));
         }),
+        (insertedRowPrimaryKey==0)?Container():Text ("   The primary key of the new row is $insertedRowPrimaryKey.", style: TextStyle (color: Colors.green),),
       ],),
     );
   }
@@ -171,6 +182,7 @@ class DemoDeleteOrder extends StatefulWidget {
 }
 class _DemoDeleteOrderState extends State<DemoDeleteOrder> {
   final TextEditingController _controllerOrderId = TextEditingController(text: "1");
+  int rowsAffected = -1;
 
   @override
   void initState() {
@@ -186,10 +198,15 @@ class _DemoDeleteOrderState extends State<DemoDeleteOrder> {
         SizedBox(width: 150, child: TextField(controller: _controllerOrderId,)),
         SizedBox(width: 20,),
         ElevatedButton(child: Text("DELETE"), onPressed: (){
-            DizzbaseConnection().transaction(
-              DizzbaseDelete(table: 'order', filters: [Filter('order', 'order_id', _controllerOrderId.text)])
-          );
+            DizzbaseConnection().deleteTransaction(
+              DizzbaseDelete(table: 'order', filters: [Filter('order', 'order_id', _controllerOrderId.text)]))
+              // ERROR HANDLING and show how many rows were deleted:
+              .then((result) {
+                if (result["error"]!= "") { throw Exception(result["error"]); }
+                setState(() => rowsAffected = result["rowCount"]);
+              });
         }),
+        (rowsAffected != -1)?Text("  Rows deleted: $rowsAffected.", style: TextStyle (color: Colors.green),):Container()
       ],),
     );
   }
