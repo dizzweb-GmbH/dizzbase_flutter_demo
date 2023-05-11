@@ -1,10 +1,7 @@
 
 // ignore_for_file: slash_for_doc_comments, prefer_const_constructors
-
-import 'package:dizzbase_demo/dizzbase_client/dizzbase_transactions.dart';
 import 'package:flutter/material.dart';
-import 'dizzbase_connection.dart';
-import 'dizzbase_query.dart';
+import 'package:dizzbase_client/dizzbase_client.dart';
 
 class DemoTable extends StatefulWidget {
   const DemoTable(this.title, this.query, {super.key});

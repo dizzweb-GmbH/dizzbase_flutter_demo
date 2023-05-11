@@ -1,6 +1,8 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 import 'package:flutter/material.dart';
-import 'package:dizzbase_demo/dizzbase_client/dizzbase_client.dart';
+import 'package:dizzbase_client/dizzbase_client.dart';
+import 'dizzbase_demo_widget.dart';
+
 
 void main() {
   runApp(const MyApp());
