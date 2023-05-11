@@ -13,11 +13,11 @@ See https://pub.dev/packages/dizzbase_client for more information on the flutter
 
 ## Getting Started
 
-Install the dizzbase backend server (https://www.npmjs.com/package/dizzbase) and cofigure it for usage with your PostgreSql database as described in the backend server REAMDME.md
+Install the dizzbase backend server (https://www.npmjs.com/package/dizzbase) and configure it for usage with your PostgreSql database as described in the backend server REAMDME.md
 
-In the flutter apps main() function, call DizzbaseConnection.configureConnection(...) to configure your backend services URL and access token.
+In the demo app's apps main() function, edit ```DizzbaseConnection.configureConnection("http://localhost:3000", "my-security-token");``` to point to your backend services URL and access token.
 
-To understand how the dart/flutter dizzbase client works, look at dizzbase_demo_widget.dart first - there you can see how data is retrieved from the database.
+To understand how the dart/flutter dizzbase client works, look at dizzbase_demo_widget.dart first - there you can see how data is retrieved from the database and displayed using the real-time mode.
 
 In dizzbase_demo_ui.dart there are more widgets that demonstrate how to insert/update/delete data. There is also an example on how to directly send SQL to the backend an retrieve the result (without using a stream).
 
