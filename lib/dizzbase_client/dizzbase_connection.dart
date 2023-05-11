@@ -6,6 +6,9 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'package:uuid/uuid.dart';
 import 'dizzbase_query.dart';
 
+String gUrl = "http://localhost:3000";
+String gApiAccessToken = "";
+
 class DizzbaseRequest
 {
   Map<String, dynamic> toJson() 
@@ -17,20 +20,27 @@ class DizzbaseRequest
 class DizzbaseConnection
 {
   void Function (bool connected)? connectionStatusCallback;
-  final String url = "http://localhost:3000";
   late String connectionuuid;
   late io.Socket _socket;
   StreamController<List<Map<String,dynamic>>>? _controller;
   Map<String, DizzbaseTransaction> transactions = {};
   bool hasBeenDisconnected = false;
   DizzbaseQuery? lastQuery;
-  
 
+  static void configureConnection (String url, String apiAccessToken)
+  {
+    gUrl = url;
+    gApiAccessToken = apiAccessToken;
+  }
+  
   /// Add a connectionStatusCallback to get notified when the backend is not online or comes back online again.
   DizzbaseConnection ({this.connectionStatusCallback})
   {
     connectionuuid = const Uuid().v4();
-    _socket = io.io(url);
+  
+    _socket = io.io(gUrl);
+    // TODO Implement security/access token
+
     _socket.emit ('init', connectionuuid);
 
     _socket.onConnect((val) {

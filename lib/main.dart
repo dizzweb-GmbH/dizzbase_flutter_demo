@@ -4,6 +4,7 @@ import 'package:dizzbase_demo/dizzbase_client/dizzbase_client.dart';
 
 void main() {
   runApp(const MyApp());
+  DizzbaseConnection.configureConnection("http://localhost:3000", "not yet implemented");
 }
 
 class MyApp extends StatelessWidget {
