@@ -1,5 +1,7 @@
 # dizzbase Flutter client
 
+IMPORTANT: This demo has only been tested as a flutter web/browser apps!
+
 Demo app that shows the usage of the dizzbase_client interface for the dizzbase node.js server.
 
 dizzbase is a realtime postgreSQL backend-as-a-service for node.js express servers.
