@@ -1,6 +1,6 @@
 # dizzbase Flutter client
 
-IMPORTANT: This demo has only been tested as a flutter web/browser apps!
+IMPORTANT: This demo has only been tested as a flutter web/browser app!
 
 Demo app that shows the usage of the dizzbase_client interface for the dizzbase node.js server.
 
