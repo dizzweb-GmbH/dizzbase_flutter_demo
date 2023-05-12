@@ -1,8 +1,8 @@
 # dizzbase Flutter client
 
-IMPORTANT: This demo has only been tested as a flutter web/browser apps!
+IMPORTANT: This demo has only been tested as a flutter web/browser app!
 
-Demo app that shows the usage of the dizzbase_client interface for the dizzbase node.js server.
+The demo app that shows the usage of the dizzbase_client interface for the dizzbase node.js server.
 
 dizzbase is a realtime postgreSQL backend-as-a-service for node.js express servers.
 Clients (flutter/dart or JavaScript/React) can send query that are automatically updated in realtime.
@@ -11,6 +11,7 @@ dizzbase can be an alternative to self-hosting supabase if a lightweight and eas
 Also, it can be used instead of firebase if you need a relational rather than document database. 
 
 See https://www.npmjs.com/package/dizzbase for instruction on how to install/run the node.js backend with PostgreSQL.
+
 See https://pub.dev/packages/dizzbase_client for more information on the flutter/dart dizzbase client.
 
 ## Getting Started
