@@ -62,7 +62,8 @@ class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
       
             // Search with a LIKE statement.
             DemoTable("Single Table with pattern search LIKE '%hotmail%'", DizzbaseQuery(table: MainTable("employee"), filters: [Filter('employee', 'employee_email', '%hotmail%', comparison: 'LIKE')])),
-      
+
+            // Complex query      
             DemoTable("Complex multi-table query with WHERE and ORDER BY", DizzbaseQuery(
               table:
                 MainTable('order'),
