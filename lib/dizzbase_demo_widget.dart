@@ -15,6 +15,7 @@ class DizzbaseDemoWidget extends StatefulWidget {
 class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
   late DizzbaseConnection dizzbaseConnectionForManualWidget;
   late DizzbaseConnection dizzbaseConnectionForDirectSQL;
+  late Stream<DizzbaseResultRows> _streamForManualWidget;
   int employeeCount = -1;
   bool backendConnected = false;
 
@@ -25,7 +26,9 @@ class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
 
   @override
   void initState() {
+    // This could be done with one Connection only, we are using two for testing:
     dizzbaseConnectionForManualWidget = DizzbaseConnection(connectionStatusCallback: dizzbaseConnectionStatusCallback, nickName: "ManualWidget");
+    _streamForManualWidget = dizzbaseConnectionForManualWidget.streamFromQuery(DizzbaseQuery(table: MainTable("employee", pkey: 3), nickName: "StreamedDirectUse"));
     dizzbaseConnectionForDirectSQL = DizzbaseConnection(nickName: "DirectSQL");
     super.initState();
   }
@@ -97,7 +100,7 @@ class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
             Text ("Directly using the data from the stream to compose widgets", style: const TextStyle(color: Colors.blue, fontSize: 15, fontWeight: FontWeight.bold),),
             const SizedBox (height: 10,),
             StreamBuilder<DizzbaseResultRows>(
-            stream: dizzbaseConnectionForManualWidget.streamFromQuery(DizzbaseQuery(table: MainTable("employee", pkey: 3), nickName: "StreamedDirectUse")),
+            stream: _streamForManualWidget,
             builder: ((context, snapshot) {
               if (snapshot.hasData)
               {

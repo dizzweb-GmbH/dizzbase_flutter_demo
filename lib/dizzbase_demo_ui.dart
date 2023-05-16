@@ -93,6 +93,7 @@ class DemoUpdateEmployee extends StatefulWidget {
   @override
   State<DemoUpdateEmployee> createState() => _DemoUpdateEmployeeState();
 }
+
 class _DemoUpdateEmployeeState extends State<DemoUpdateEmployee> {
   final TextEditingController _controllerName = TextEditingController(text: "NewName");
   final TextEditingController _controllerEmail = TextEditingController(text: "newEmail@mail.com");
@@ -114,7 +115,7 @@ class _DemoUpdateEmployeeState extends State<DemoUpdateEmployee> {
         SizedBox(width: 150, child: TextField(controller: _controllerEmail,)),
         SizedBox(width: 20,),
         ElevatedButton(child: Text("UPDATE"), onPressed: (){
-            DizzbaseConnection().updateTransaction(
+            DizzbaseConnection(nickName: "EmpUpdateConnection").updateTransaction(
               DizzbaseUpdate(table: "employee", fields: ["employee_name", "employee_email"], 
                 values: [_controllerName.text, _controllerEmail.text], filters: [Filter('employee', 'employee_id', 2)], nickName: "UpdateEmployee"),)
               // ERROR HANDLING and show how many rows were updated:
@@ -128,7 +129,6 @@ class _DemoUpdateEmployeeState extends State<DemoUpdateEmployee> {
     );
   }
 }
-
 
 /**************** INSERT INTO A TABLE  ****************/
 // Note that the inserted order is automatically added to all queries that join to the same employees/customers as the new order!
