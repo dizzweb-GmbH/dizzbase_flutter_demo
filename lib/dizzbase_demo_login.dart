@@ -6,11 +6,13 @@ import 'package:dizzbase_client/dizzbase_client.dart';
 class DizzbaseLogin extends StatefulWidget {
   const DizzbaseLogin({super.key});
 
-  static void showLoginDialog (BuildContext context)
+  static Future<bool> showLoginDialog (BuildContext context) async
   {
-    showDialog(context: context, builder: ((context) {
+    var success = await showDialog<bool>(context: context, builder: ((context) {
       return DizzbaseLogin();
     }));
+    success ??= false;
+    return success;
   }
 
   @override
@@ -37,14 +39,14 @@ class _DizzbaseLoginState extends State<DizzbaseLogin> {
         ],),
       ),
       actions: [
-        ElevatedButton(onPressed: (){Navigator.of(context).pop();}, child: Text ('     Cancel     ')),
+        ElevatedButton(onPressed: (){Navigator.of(context).pop(false);}, child: Text ('     Cancel     ')),
         ElevatedButton(onPressed: (){
           String uName = ""; String uEmail = "";
           if (_ctrlUname.text.contains("@")) {uEmail = _ctrlUname.text;} else {uName = _ctrlUname.text;}
           DizzbaseAuthentication.login(userName: uName, email: uEmail, password: _ctrlPwd.text).then((loginResult) {
-            if (loginResult.loginSuccessful)
+            if (loginResult.success)
             {
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(true);
             } else {
               setState(() {
                 loginError = loginResult.error;

@@ -44,7 +44,7 @@ class _DemoTableState extends State<DemoTable> {
           builder: ((context, snapshot) {
             if (snapshot.hasData)
             {
-              return DemoTableLayout(snapshot.data!.data!);
+              return DemoTableLayout(snapshot.data!.rows!);
             }
             return const CircularProgressIndicator();
           })),

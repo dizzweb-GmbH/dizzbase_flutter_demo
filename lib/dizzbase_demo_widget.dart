@@ -18,6 +18,7 @@ class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
   late Stream<DizzbaseResultRows> _streamForManualWidget;
   int employeeCount = -1;
   bool backendConnected = false;
+  String loginInfo = "";
 
   void dizzbaseConnectionStatusCallback (bool connected)
   {
@@ -54,7 +55,15 @@ class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
             // see function dizzbaseConnectionStatusCallback and the code in initState above:
             Row (children: [(backendConnected)?Text("Backend CONNECTED", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green),):
                 Text("Backend DISCONNECTED", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),), Text ("   (Turn the backend off and on again to see how the status changes)"),
-                SizedBox (width: 20), ElevatedButton(onPressed: (){DizzbaseLogin.showLoginDialog(context);}, child: Text ("Login"))
+                SizedBox (width: 20), ElevatedButton(onPressed: (){
+                  DizzbaseLogin.showLoginDialog(context).then((result){
+                    setState(() {
+                      if (result) loginInfo="Logged in User: ${DizzbaseAuthentication.currentUser?.userName}"; 
+                    });
+                  });
+                }, child: Text ("Login")),
+                SizedBox(width: 15,),
+                Text (loginInfo),
               ]),
             
             SizedBox (height: 10,),                      
@@ -104,7 +113,7 @@ class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
             builder: ((context, snapshot) {
               if (snapshot.hasData)
               {
-                return Text ("Employee \"${snapshot.data!.data![0]['employee_name']}\" uses the email address \"${snapshot.data!.data![0]['employee_email']}\".");
+                return Text ("Employee \"${snapshot.data!.rows![0]['employee_name']}\" uses the email address \"${snapshot.data!.rows![0]['employee_email']}\".");
               }
               if (snapshot.hasError) {throw Exception("Snapshot has error: ${snapshot.error}");}
               return Text ("Waiting for information on employee number 3...");
@@ -131,7 +140,7 @@ class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
                   dizzbaseConnectionForDirectSQL.directSQLTransaction("SELECT count(*) AS c from employee").then ((result){
                     if (result.error!="") {throw Exception(result.error);}
                     // We get only one row (result[0]) and the column has been named "c":
-                    setState(() => employeeCount = int.parse(result.data![0]["c"]));
+                    setState(() => employeeCount = int.parse(result.rows![0]["c"]));
                   });
                 }, child: Text ("Send SQL: SELECT count(*) from employee")), SizedBox(width: 10,),
                 (employeeCount==-1)?Container():Text ("Result of 'SELECT count(*) from employees: "), 
