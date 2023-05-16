@@ -119,7 +119,7 @@ class _DemoUpdateEmployeeState extends State<DemoUpdateEmployee> {
                 values: [_controllerName.text, _controllerEmail.text], filters: [Filter('employee', 'employee_id', 2)], nickName: "UpdateEmployee"),)
               // ERROR HANDLING and show how many rows were updated:
               .then((result) {
-                if (result.error!= "") { throw Exception(result["error"]); }
+                if (result.error!= "") { throw Exception(result.rowCount); }
                 setState(() => rowsAffected = result.rowCount);
               });
         }),
