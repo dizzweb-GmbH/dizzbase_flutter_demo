@@ -11,7 +11,12 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  dizzbase_client: ^0.0.3
+
+# Uncomment to load client from the pub.dev respository
+#  dizzbase_client: ^0.0.6
+# Uncomment to use a local packages for development/debugging:
+  dizzbase_client:
+    path: ../dizzbase_client
 
 dev_dependencies:
   flutter_test:

@@ -1,4 +1,5 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
+// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, avoid_print
+import 'package:dizzbase_demo/dizzbase_demo_login.dart';
 import 'package:flutter/material.dart';
 import 'package:dizzbase_client/dizzbase_client.dart';
 import 'dizzbase_demo_ui.dart';
@@ -24,8 +25,8 @@ class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
 
   @override
   void initState() {
-    dizzbaseConnectionForManualWidget = DizzbaseConnection(connectionStatusCallback: dizzbaseConnectionStatusCallback);
-    dizzbaseConnectionForDirectSQL = DizzbaseConnection();
+    dizzbaseConnectionForManualWidget = DizzbaseConnection(connectionStatusCallback: dizzbaseConnectionStatusCallback, nickName: "ManualWidget");
+    dizzbaseConnectionForDirectSQL = DizzbaseConnection(nickName: "DirectSQL");
     super.initState();
   }
 
@@ -49,19 +50,21 @@ class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
             // This dizzbase connection state indicator is triggered through the connectionStatusCallback function parameter of the dizzbaseConnection object 
             // see function dizzbaseConnectionStatusCallback and the code in initState above:
             Row (children: [(backendConnected)?Text("Backend CONNECTED", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green),):
-                Text("Backend DISCONNECTED", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),), Text ("   (Turn the backend off and on again to see how the status changes)")]),
-    
+                Text("Backend DISCONNECTED", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),), Text ("   (Turn the backend off and on again to see how the status changes)"),
+                SizedBox (width: 20), ElevatedButton(onPressed: (){DizzbaseLogin.showLoginDialog(context);}, child: Text ("Login"))
+              ]),
+            
             SizedBox (height: 10,),                      
-            DemoTable("Single Record with Primary Key - shortcut", DizzbaseQuery.singleRow ('employee', 2)),
-      
+            DemoTable("Single Record with Primary Key - shortcut", DizzbaseQuery.singleRow ('employee', 2, nickName: "SingleRowEmployee"), widgetConnectionNickName: "SingleRowEmployee",),
+            
             // Demo of how a list of orders is automatically updated when a new order is added.
             DemoTable("Orders list for Employee #2 as sales rep (will be updated if you insert a new order for this employee)", DizzbaseQuery(
               table: MainTable("order"), 
               joinedTables: [JoinedTable('employee', joinToTableOrAlias: 'order', foreignKey:  'sales_rep_id' )],
-              filters: [Filter('employee', 'employee_id', 2)])),
-      
+              filters: [Filter('employee', 'employee_id', 2)], nickName: "ComplexQuery"), widgetConnectionNickName: "ComplexQuery",),
+            
             // Search with a LIKE statement.
-            DemoTable("Single Table with pattern search LIKE '%hotmail%'", DizzbaseQuery(table: MainTable("employee"), filters: [Filter('employee', 'employee_email', '%hotmail%', comparison: 'LIKE')])),
+            DemoTable("Single Table with pattern search LIKE '%hotmail%'", DizzbaseQuery(table: MainTable("employee"), filters: [Filter('employee', 'employee_email', '%hotmail%', comparison: 'LIKE')], nickName: "LIKESearch"), widgetConnectionNickName: "LIKESearch",),
 
             // Complex query      
             DemoTable("Complex multi-table query with WHERE and ORDER BY", DizzbaseQuery(
@@ -85,26 +88,25 @@ class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
               filters: 
               [
                 Filter ('order', 'order_revenue', 50, comparison: ">="),
-              ]
-            )),
-      
+              ], nickName: "MultiTableComplex",
+            ), widgetConnectionNickName: "MultiTableComplex",),
       
             // Here wir are directly using the data for the stream without the DemoTable logic, to demonstrate how you can build widgets:
             // Note the the dizzbaseConnection is initialized in the widget's initState. There has to be a separate dizzbaseClient for every widget/stream.
             // Also note that the dizzbaseConnection is disposed of in the dispose() function of the stateful widget.
             Text ("Directly using the data from the stream to compose widgets", style: const TextStyle(color: Colors.blue, fontSize: 15, fontWeight: FontWeight.bold),),
             const SizedBox (height: 10,),
-            StreamBuilder<List<Map<String, dynamic>>>(
-            stream: dizzbaseConnectionForManualWidget.streamFromQuery(DizzbaseQuery(table: MainTable("employee", pkey: 3))),
+            StreamBuilder<DizzbaseResultRows>(
+            stream: dizzbaseConnectionForManualWidget.streamFromQuery(DizzbaseQuery(table: MainTable("employee", pkey: 3), nickName: "StreamedDirectUse")),
             builder: ((context, snapshot) {
               if (snapshot.hasData)
               {
-                return Text ("Employee \"${snapshot.data![0]['employee_name']}\" uses the email address \"${snapshot.data![0]['employee_email']}\".");
+                return Text ("Employee \"${snapshot.data!.data![0]['employee_name']}\" uses the email address \"${snapshot.data!.data![0]['employee_email']}\".");
               }
-              return Text ("Waiting for inforation on employee number 3...");
+              if (snapshot.hasError) {throw Exception("Snapshot has error: ${snapshot.error}");}
+              return Text ("Waiting for information on employee number 3...");
             })),
             const SizedBox (height: 5,),
-    
     
             // Other important things to take care of:
             Row(mainAxisAlignment: MainAxisAlignment.start, children: [Text("Important: ", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),), 
@@ -124,18 +126,17 @@ class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
                 Text ("Send a SQL statement directly to the server without a stream. This does not real-time update.   ", style: const TextStyle(color: Colors.blue, fontSize: 15, fontWeight: FontWeight.bold),),
                 ElevatedButton(onPressed: () {
                   dizzbaseConnectionForDirectSQL.directSQLTransaction("SELECT count(*) AS c from employee").then ((result){
-                    if (result.error!="") {throw Exception(result.error.toString());}
+                    if (result.error!="") {throw Exception(result.error);}
                     // We get only one row (result[0]) and the column has been named "c":
-                    setState(() => employeeCount = int.parse(result.data[0]["c"]));
+                    setState(() => employeeCount = int.parse(result.data![0]["c"]));
                   });
-                }, child: Text ("Send SQL: SELECT count(*) from employees")), SizedBox(width: 10,),
+                }, child: Text ("Send SQL: SELECT count(*) from employee")), SizedBox(width: 10,),
                 (employeeCount==-1)?Container():Text ("Result of 'SELECT count(*) from employees: "), 
                 (employeeCount==-1)?Container():Text (employeeCount.toString(), style: TextStyle (color: Colors.green),),
               ],
             ),
             const SizedBox (height: 5,),
-    
-      
+            
           ],
         ),
       ),

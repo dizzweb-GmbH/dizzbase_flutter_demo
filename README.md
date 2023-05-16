@@ -18,7 +18,13 @@ See https://pub.dev/packages/dizzbase_client for more information on the flutter
 
 Install the dizzbase backend server (https://www.npmjs.com/package/dizzbase) and configure it for usage with your PostgreSql database as described in the backend server REAMDME.md
 
+Install the demo data into the demo database before (!!!) you start the backend for the first time by running the shell script sql/testResetDB.sh included in the dizzbase npm module. You can also get the script from github https://github.com/dizzweb-GmbH/dizzbase. The shell script uses some of the *.sql files in the sql folder, so start it ```/bin/sh testResetDB.sql``` in the sql directory.
+
+Check the pubspec.yaml file and edit (if necessary) how you load the dizzbase_client package. You can either load it via pub.dev or via a local path (in case you downloaded the dizzbase_client from https://github.com/dizzweb-GmbH/dizzbase_client_flutter).
+
 In the demo app's apps main() function, edit ```DizzbaseConnection.configureConnection("http://localhost:3000", "my-security-token");``` to point to your backend services URL and access token.
+
+Read the examples on how to use the API before looking at the demo client: https://github.com/dizzweb-GmbH/dizzbase_client_flutter/blob/main/example/example.md
 
 To understand how the dart/flutter dizzbase client works, look at dizzbase_demo_widget.dart first - there you can see how data is retrieved from the database and displayed using the real-time mode.
 

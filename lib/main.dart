@@ -6,7 +6,7 @@ import 'dizzbase_demo_widget.dart';
 
 void main() {
   runApp(const MyApp());
-  DizzbaseConnection.configureConnection("http://localhost:3000", "my-security-token");
+  DizzbaseConnection.configureConnection("http://localhost:3000", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.25MdiMMO02dSFngheEiuLMdxgkLmHRqr99FwXGAdI-s");
 }
 
 class MyApp extends StatelessWidget {
@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'dizzbase Flutter Demo Home Page'),
     );
   }
 }

@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:dizzbase_client/dizzbase_client.dart';
 
 class DemoTable extends StatefulWidget {
-  const DemoTable(this.title, this.query, {super.key});
+  const DemoTable(this.title, this.query, {super.key, this.widgetConnectionNickName=""});
   final DizzbaseQuery query;
   final String title;
+  final String widgetConnectionNickName;
 
   @override
   State<DemoTable> createState() => _DemoTableState();
@@ -14,10 +15,12 @@ class DemoTable extends StatefulWidget {
 
 class _DemoTableState extends State<DemoTable> {
   late DizzbaseConnection dizzbaseClient;
+  late Stream<DizzbaseResultRows> _dizzbaseStream;
 
   @override
   void initState() {
-    dizzbaseClient = DizzbaseConnection();
+    dizzbaseClient = DizzbaseConnection(nickName: widget.widgetConnectionNickName);
+    _dizzbaseStream = dizzbaseClient.streamFromQuery(widget.query);
     super.initState();
   }
 
@@ -28,7 +31,6 @@ class _DemoTableState extends State<DemoTable> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -37,12 +39,12 @@ class _DemoTableState extends State<DemoTable> {
       children: [
         Text (widget.title, style: const TextStyle(color: Colors.blue, fontSize: 15, fontWeight: FontWeight.bold),),
         const SizedBox (height: 10,),
-        StreamBuilder<List<Map<String, dynamic>>>(
-          stream: dizzbaseClient.streamFromQuery(widget.query),
+        StreamBuilder<DizzbaseResultRows>(
+          stream: _dizzbaseStream, // Never *create* the stream in the builder function, just use it here.
           builder: ((context, snapshot) {
             if (snapshot.hasData)
             {
-              return DemoTableLayout(snapshot.data!);
+              return DemoTableLayout(snapshot.data!.data!);
             }
             return const CircularProgressIndicator();
           })),
@@ -114,11 +116,11 @@ class _DemoUpdateEmployeeState extends State<DemoUpdateEmployee> {
         ElevatedButton(child: Text("UPDATE"), onPressed: (){
             DizzbaseConnection().updateTransaction(
               DizzbaseUpdate(table: "employee", fields: ["employee_name", "employee_email"], 
-                values: [_controllerName.text, _controllerEmail.text], filters: [Filter('employee', 'employee_id', 2)]))
+                values: [_controllerName.text, _controllerEmail.text], filters: [Filter('employee', 'employee_id', 2)], nickName: "UpdateEmployee"),)
               // ERROR HANDLING and show how many rows were updated:
               .then((result) {
-                if (result["error"]!= "") { throw Exception(result["error"]); }
-                setState(() => rowsAffected = result["rowCount"]);
+                if (result.error!= "") { throw Exception(result["error"]); }
+                setState(() => rowsAffected = result.rowCount);
               });
         }),
         (rowsAffected != -1)?Text("  Rows updated: $rowsAffected.", style: TextStyle (color: Colors.green),):Container()
@@ -159,10 +161,9 @@ class _DemoInsertOrderState extends State<DemoInsertOrder> {
         ElevatedButton(child: Text("INSERT"), onPressed: (){
             DizzbaseConnection().insertTransaction(
               DizzbaseInsert(table: "order", fields: ["order_name", "customer_id", "sales_rep_id", "services_rep_id", "order_revenue"], 
-                values: [_controllerName.text, 1, 2, 2, _controllerRevenue.text]))
+                values: [_controllerName.text, 1, 2, 2, _controllerRevenue.text], nickName: "InsertOrder"))
           // RETRIEVING THE PRIMARY KEY: This is executed after we get back the result of the transaction. 
-          // Instead of "pkey" you can also access the key by using it's column name: data["order_id"] in this case.
-          .then((data) => setState(() => insertedRowPrimaryKey = data));
+          .then((data) => setState(() => insertedRowPrimaryKey = data.pkey));
         }),
         (insertedRowPrimaryKey==0)?Container():Text ("   The primary key of the new row is $insertedRowPrimaryKey.", style: TextStyle (color: Colors.green),),
       ],),
@@ -197,11 +198,11 @@ class _DemoDeleteOrderState extends State<DemoDeleteOrder> {
         SizedBox(width: 20,),
         ElevatedButton(child: Text("DELETE"), onPressed: (){
             DizzbaseConnection().deleteTransaction(
-              DizzbaseDelete(table: 'order', filters: [Filter('order', 'order_id', _controllerOrderId.text)]))
+              DizzbaseDelete(table: 'order', filters: [Filter('order', 'order_id', _controllerOrderId.text)], nickName: "DeleteOrder"))
               // ERROR HANDLING and show how many rows were deleted:
               .then((result) {
-                if (result["error"]!= "") { throw Exception(result["error"]); }
-                setState(() => rowsAffected = result["rowCount"]);
+                if (result.error!= "") { throw Exception(result.error); }
+                setState(() => rowsAffected = result.rowCount);
               });
         }),
         (rowsAffected != -1)?Text("  Rows deleted: $rowsAffected.", style: TextStyle (color: Colors.green),):Container()
