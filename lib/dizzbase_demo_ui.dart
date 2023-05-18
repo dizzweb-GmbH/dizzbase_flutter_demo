@@ -1,5 +1,5 @@
 
-// ignore_for_file: slash_for_doc_comments, prefer_const_constructors
+// ignore_for_file: slash_for_doc_comments, prefer_const_constructors, avoid_print
 import 'package:flutter/material.dart';
 import 'package:dizzbase_client/dizzbase_client.dart';
 
@@ -46,6 +46,7 @@ class _DemoTableState extends State<DemoTable> {
             {
               return DemoTableLayout(snapshot.data!.rows!);
             }
+            if (snapshot.hasError) return Text ("ERROR: ${snapshot.error}", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),);
             return const CircularProgressIndicator();
           })),
         const SizedBox (height: 20,),
@@ -163,7 +164,15 @@ class _DemoInsertOrderState extends State<DemoInsertOrder> {
               DizzbaseInsert(table: "order", fields: ["order_name", "customer_id", "sales_rep_id", "services_rep_id", "order_revenue"], 
                 values: [_controllerName.text, 1, 2, 2, _controllerRevenue.text], nickName: "InsertOrder"))
           // RETRIEVING THE PRIMARY KEY: This is executed after we get back the result of the transaction. 
-          .then((data) => setState(() => insertedRowPrimaryKey = data.pkey));
+          .then((data) {
+            if (data.error == "")
+            {
+              setState(() => insertedRowPrimaryKey = data.pkey);
+            } else {
+              print ("ERROR in INSERT: ${data.error}");
+              setState(() => insertedRowPrimaryKey = -1);
+            }
+        });
         }),
         (insertedRowPrimaryKey==0)?Container():Text ("   The primary key of the new row is $insertedRowPrimaryKey.", style: TextStyle (color: Colors.green),),
       ],),

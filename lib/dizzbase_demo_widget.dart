@@ -64,6 +64,25 @@ class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
                 }, child: Text ("Login")),
                 SizedBox(width: 15,),
                 Text (loginInfo),
+                SizedBox(width: 15,),
+                ElevatedButton(onPressed: () {
+                  dizzbaseConnectionForManualWidget.updateTransaction(DizzbaseUpdate(table: "order", 
+                    fields: ["order_time", "order_revenue"], values: [DateTime.now(), 142.42],
+                    filters: [Filter("order", "order_id", 1)]
+                  ),)
+                      .then((value) {
+                          if (value.error != "") {print ("ERROR ${value.error}"); return;}
+                          print ("OK");
+                      });
+                }, child: Text ("Test 1")),
+                SizedBox(width: 15,),
+                ElevatedButton(onPressed: () {
+                  dizzbaseConnectionForManualWidget.directSQLTransaction('SELECT order_time from "order" LIMIT 1')
+                    .then((value) {
+                      if (value.error != "") {print ("ERROR ${value.error}"); return;}
+                      print ("DATE TIME: ${value.rows![0]['order_time']}");
+                    });
+                }, child: Text ("Test 2")),
               ]),
             
             SizedBox (height: 10,),                      
