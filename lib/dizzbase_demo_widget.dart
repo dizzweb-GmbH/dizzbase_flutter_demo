@@ -80,7 +80,7 @@ class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
                   dizzbaseConnectionForManualWidget.directSQLTransaction('SELECT order_time from "order" LIMIT 1')
                     .then((value) {
                       if (value.error != "") {print ("ERROR ${value.error}"); return;}
-                      print ("DATE TIME: ${value.rows![0]['order_time']}");
+                      print ("DATE TIME: ${value.rows[0]['order_time']}");
                     });
                 }, child: Text ("Test 2")),
               ]),
@@ -132,7 +132,7 @@ class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
             builder: ((context, snapshot) {
               if (snapshot.hasData)
               {
-                return Text ("Employee \"${snapshot.data!.rows![0]['employee_name']}\" uses the email address \"${snapshot.data!.rows![0]['employee_email']}\".");
+                return Text ("Employee \"${snapshot.data!.rows[0]['employee_name']}\" uses the email address \"${snapshot.data!.rows[0]['employee_email']}\".");
               }
               if (snapshot.hasError) {throw Exception("Snapshot has error: ${snapshot.error}");}
               return Text ("Waiting for information on employee number 3...");
@@ -159,7 +159,7 @@ class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
                   dizzbaseConnectionForDirectSQL.directSQLTransaction("SELECT count(*) AS c from employee").then ((result){
                     if (result.error!="") {throw Exception(result.error);}
                     // We get only one row (result[0]) and the column has been named "c":
-                    setState(() => employeeCount = int.parse(result.rows![0]["c"]));
+                    setState(() => employeeCount = int.parse(result.rows[0]["c"]));
                   });
                 }, child: Text ("Send SQL: SELECT count(*) from employee")), SizedBox(width: 10,),
                 (employeeCount==-1)?Container():Text ("Result of 'SELECT count(*) from employees: "), 

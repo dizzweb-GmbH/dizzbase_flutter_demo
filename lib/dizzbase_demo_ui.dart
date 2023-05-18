@@ -44,7 +44,7 @@ class _DemoTableState extends State<DemoTable> {
           builder: ((context, snapshot) {
             if (snapshot.hasData)
             {
-              return DemoTableLayout(snapshot.data!.rows!);
+              return DemoTableLayout(snapshot.data!.rows);
             }
             if (snapshot.hasError) return Text ("ERROR: ${snapshot.error}", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),);
             return const CircularProgressIndicator();
