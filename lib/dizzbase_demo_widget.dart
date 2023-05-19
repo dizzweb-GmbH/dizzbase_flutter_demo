@@ -31,6 +31,7 @@ class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
     dizzbaseConnectionForManualWidget = DizzbaseConnection(connectionStatusCallback: dizzbaseConnectionStatusCallback, nickName: "ManualWidget");
     _streamForManualWidget = dizzbaseConnectionForManualWidget.streamFromQuery(DizzbaseQuery(table: MainTable("employee", pkey: 3), nickName: "StreamedDirectUse"));
     dizzbaseConnectionForDirectSQL = DizzbaseConnection(nickName: "DirectSQL");
+    updateCurrentUserInfo();
     super.initState();
   }
 
@@ -57,11 +58,13 @@ class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
                 Text("Backend DISCONNECTED", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),), Text ("   (Turn the backend off and on again to see how the status changes)"),
                 SizedBox (width: 20), ElevatedButton(onPressed: (){
                   DizzbaseLogin.showLoginDialog(context).then((result){
-                    setState(() {
-                      if (result) loginInfo="Logged in User: ${DizzbaseAuthentication.currentUser?.userName}"; 
-                    });
+                    updateCurrentUserInfo(result: result);
                   });
-                }, child: Text ("Login")),
+                }, child: Text ("Log in")),
+                SizedBox (width: 20), ElevatedButton(onPressed: (){
+                  DizzbaseAuthentication.logout();
+                  updateCurrentUserInfo();
+                }, child: Text ("Log out")),
                 SizedBox(width: 15,),
                 Text (loginInfo),
                 SizedBox(width: 15,),
@@ -83,6 +86,12 @@ class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
                       print ("DATE TIME: ${value.rows[0]['order_time']}");
                     });
                 }, child: Text ("Test 2")),
+                SizedBox(width: 15,),
+                ElevatedButton(onPressed: () {
+                  DizzbaseAuthentication.login(userName: "admin", password: "admin").then((value) => print ("1 Error ${value.error} ${value.success}"));
+                  DizzbaseAuthentication.login(userName: "admin", password: "admin").then((value) => print ("2 Error ${value.error} ${value.success}"));
+                  DizzbaseAuthentication.login(userName: "admin", password: "admin").then((value) => print ("3 Error ${value.error} ${value.success}"));
+                }, child: Text ("Test Tripple Login")),
               ]),
             
             SizedBox (height: 10,),                      
@@ -172,5 +181,18 @@ class _DizzbaseDemoWidgetState extends State<DizzbaseDemoWidget> {
         ),
       ),
     );
+  }
+
+  void updateCurrentUserInfo ({bool result=true})
+  {
+    setState(() {
+      if (DizzbaseAuthentication.currentUser == null)
+      {
+        loginInfo="No user logged in.";
+        if (result=false) loginInfo += " The login attempt was not successful or aborted.";
+      } else {
+        loginInfo="Logged in User: ${DizzbaseAuthentication.currentUser?.userName}.";
+      }
+    });
   }
 }

@@ -4,9 +4,10 @@ import 'package:dizzbase_client/dizzbase_client.dart';
 import 'dizzbase_demo_widget.dart';
 
 
-void main() {
+void main() async {
+  DizzbaseConnection.configureConnection("http://localhost:3000", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjowLCJ1c2VyX25hbWUiOiIiLCJ1c2VyX3JvbGUiOiJhcGkiLCJ1dWlkIjoiIiwiaWF0IjoxNjg0NTIxMzc5fQ.yL4YV9z_ajOuiH-ixBwPPCK8JDMl-szsOTSk7YHvFVE");
+  await DizzbaseAuthentication.login(userName: "admin", password: "admin");
   runApp(const MyApp());
-  DizzbaseConnection.configureConnection("http://localhost:3000", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.25MdiMMO02dSFngheEiuLMdxgkLmHRqr99FwXGAdI-s");
 }
 
 class MyApp extends StatelessWidget {
